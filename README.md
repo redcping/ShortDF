@@ -1,5 +1,6 @@
 # ShortDF
 Optimizing for the Shortest Path in Denoising Diffusion Model (CVPR2025)
+
 ![license](https://img.shields.io/badge/License-MIT-brightgreen)
 ![python](https://img.shields.io/badge/Python-3.9-blue)
 ![pytorch](https://img.shields.io/badge/PyTorch-2.1-orange)
