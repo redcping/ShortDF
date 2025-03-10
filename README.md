@@ -6,7 +6,7 @@ Optimizing for the Shortest Path in Denoising Diffusion Model (CVPR2025)
 ![pytorch](https://img.shields.io/badge/PyTorch-2.1-orange)
 
 # Description
-This repository is the official source of code for our paper titled "Optimizing for the Shortest Path in Denoising Diffusion Model". 
+This repository is the official source of code for our paper titled "Optimizing for the Shortest Path in Denoising Diffusion Model" . 
 ![shortdf](https://github.com/user-attachments/assets/99fffb4c-e962-4582-a487-48fd05e2c91d)
 
 
@@ -14,13 +14,14 @@ We introduce the Shortest Path Diffusion Model (ShortDF), a denoising diffusion 
 
 # Code
 come soon
+
 # Citation
 If you find this work helpful in your research, please consider citing our paper:
 ```
-@inproceedings{chen2025_ShortDF,
-  title     = {Optimizing for the Shortest Path in Denoising Diffusion Model},
-  author    = {Ping Chen, Xingpeng Zhang, Zhaoxiang Liu, Huan Hu, Xiang Liu, Kai Wang, Min Wang, Yanlin Qian, Shiguo Lian},
+@article{chen2025optimizing,
+  title={Optimizing for the Shortest Path in Denoising Diffusion Model},
+  author={Chen, Ping and Zhang, Xingpeng and Liu, Zhaoxiang and Hu, Huan and Liu, Xiang and Wang, Kai and Wang, Min and Qian, Yanlin and Lian, Shiguo},
   booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-  year      = {2025}
+  year={2025}
 }
 ```
