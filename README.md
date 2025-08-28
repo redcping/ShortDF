@@ -2,7 +2,7 @@
 ![license](https://img.shields.io/badge/License-MIT-brightgreen)  ![python](https://img.shields.io/badge/Python-3.9-blue)  ![pytorch](https://img.shields.io/badge/PyTorch-2.1-orange)  
 
 
-## 🫖 Description
+## 📄 Description
 This repository contains the official code for our paper "Optimizing for the Shortest Path in Denoising Diffusion Model" (CVPR 2025).  
 ShortDF can be seen as giving AI an “intelligent navigation system” for generation: instead of following all diffusion steps, it dynamically finds the optimal path, allowing **one step to achieve the effect of multiple steps**.
 
