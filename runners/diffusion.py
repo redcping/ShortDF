@@ -427,13 +427,10 @@ class Diffusion(object):
                     ** 2
                 )
                 seq =[int(s) for s in list(seq)]
-                if len(seq)<6:
+                if len(seq)<3:
                     s1=[700]
                     s2=[200,700]
-                    s3=[0,200,700]
-                    s4=[0,40, 200,700]
-                    s5=[0,100,200,700,800]
-                    ss=[s1,s2,s3,s4,s5]
+                    ss=[s1,s2]
                     seq = ss[len(seq)-1]
             else:
                 raise NotImplementedError

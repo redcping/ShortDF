@@ -1,100 +1,125 @@
-# (CVPR 2025, Highlight) ShortDF: Optimizing for the Shortest Path in Denoising Diffusion Model 
-![license](https://img.shields.io/badge/License-MIT-brightgreen)  ![python](https://img.shields.io/badge/Python-3.9-blue)  ![pytorch](https://img.shields.io/badge/PyTorch-2.1-orange)  
 
+# (CVPR 2025, Highlight) ShortDF: Optimizing for the Shortest Path in Denoising Diffusion Model
 
-## 🫖 Description
-This repository contains the official code for our paper "Optimizing for the Shortest Path in Denoising Diffusion Model" (CVPR 2025).  
-ShortDF can be seen as giving AI an “intelligent navigation system” for generation: instead of following all diffusion steps, it dynamically finds the optimal path, allowing **one step to achieve the effect of multiple steps**.
+![license](https://img.shields.io/badge/License-MIT-brightgreen)  ![python](https://img.shields.io/badge/Python-3.9-blue)  ![pytorch](https://img.shields.io/badge/PyTorch-2.1-orange)
 
-- **Implicit Graph Modeling**: Model parameters form a “path graph,” where each node represents a timestep in the diffusion process.  
-- **Shortest-Path Relaxation optimization**: During training, the model compares direct paths with multi-step paths. If the direct path has higher error, it is optimized using the multi-step path, letting one step absorb the benefits of multiple steps.
-- **Intuitive Example**:
-  - Compare path 10→0 vs 10→2→0: if the direct path has larger error, it is optimized using the two-step path, making one step as effective as two.  
-  - Compare path 100→0 vs 100→10→0: as 10→0 has already been optimized, 100→10→0 carries the improved information, which can further optimize 100→0.  
-  - Repeating this process, long paths gradually absorb intermediate optimizations, achieving “one-step convergence” comparable to many original steps.
+## 🧭 Description
 
-- **Main Results in CIFAR-10**:
-  Original DDIM requires 10 steps to generate an image, whereas ShortDF achieves similar quality in just 2 steps — a **5× speedup**. The image fidelity measured by **FID** improves by **18.5%**. Comparison example:
+This repository is the official implementation of **ShortDF** (CVPR 2025). 
+
+ShortDF acts as an **"intelligent navigation system"** for diffusion models. Instead of blindly following a fixed trajectory, it solves for the optimal path via **Implicit Graph Modeling** and **Shortest-Path Relaxation**. This allows **a single step to achieve the efficacy of multiple steps**.
+
+### Core Mechanism
+- **Path Optimization**: We treat diffusion steps as nodes in a graph. If a multi-step path (e.g., $10 \to 2 \to 0$) yields better quality than a direct step ($10 \to 0$), the model optimizes the direct step to match that higher quality.
+- **Error Propagation**: Through iterative training, long paths (e.g., $100 \to 0$) absorb the refined information from intermediate steps, achieving **fewer-step convergence** comparable to the original multi-step process.
+
+### Highlights
+- **5× Speedup**: Achieves quality comparable to 10-step DDIM on CIFAR-10 in just **2 steps**.
+- **Higher Fidelity**: Improves FID by **18.5%** on CIFAR-10.
+- **Robustness**: Demonstrates superior performance on CelebA and LSUN-Church datasets across various sampling steps.
+
+<div align="center">
+  <img width="100%" alt="Visual comparison of generated images on CIFAR-10, showing high quality achieved with only 2 steps by ShortDF compared to 10-step DDIM." src="https://github.com/user-attachments/assets/a0dfa05a-bed9-4ec8-95e2-bcb992d71eee" />
+  <p style="font-size: 0.9em; margin-top: 5px;"><strong>Figure 1: Extreme Speed Test on CIFAR-10.</strong> ShortDF achieves comparable quality at 2 steps, demonstrating a 5× speedup.</p>
+  
+  <img width="100%" alt="ShortDF Architecture and comparison of sampling quality across CelebA and LSUN-Church, illustrating the clear advantage of ShortDF at different step counts (step i indicates the i-th image in the sampling sequence)." src="https://github.com/user-attachments/assets/4e3b77c4-8cea-44f0-a9c2-8c6c64426030" />
+  <p style="font-size: 0.9em; margin-top: 5px;"><strong>Figure 2: Multi-Dataset Performance and Sampling Trajectory (CelebA, Church).</strong> Note ShortDF's clear quality advantage across the sampling sequence (Step i).</p>
  
+</div>
 
-  <div align="center">
-    <img width="800" height="160" alt="image" src="https://github.com/user-attachments/assets/a0dfa05a-bed9-4ec8-95e2-bcb992d71eee" />
-  </div>
-For more details and experimental results, see our CVPR 2025 [paper](https://openaccess.thecvf.com/content/CVPR2025/papers/Chen_Optimizing_for_the_Shortest_Path_in_Denoising_Diffusion_Model_CVPR_2025_paper.pdf).
-
-
----
-
-## ⚙️ Requirements
-- Python ≥ 3.9
-- PyTorch ≥ 1.6
-- torchvision, numpy, tqdm (standard PyTorch dependencies)
+For more details, please refer to our [CVPR 2025 paper](https://openaccess.thecvf.com/content/CVPR2025/papers/Chen_Optimizing_for_the_Shortest_Path_in_Denoising_Diffusion_Model_CVPR_2025_paper.pdf).
 
 ---
 
 ## 🚀 Running the Experiments
 
 ### Training
-Training is identical to DDPM, e.g.:
-```
+
+Training follows the standard DDPM protocol. 
+
+```bash
 python main.py --config {DATASET}.yml --exp {PROJECT_PATH} --doc {MODEL_NAME} --ni
-```
+````
 
-#### Loss Design Reference
-- ShortDF-specific loss is implemented in `./functions/losses.py` as `shortdf_relax_loss`.
-- Recommended training strategies:
-  1. **Two-stage training (recommended)**:
-     - First, train using the standard noise loss (or load a pretrained DDPM model) to stabilize training.
-     - Then, fine-tune with `shortdf_relax_loss` to optimize shortest-path residuals.
-     - This approach reduces training complexity and improves convergence stability.
-  2. **One-stage training (optional)**:
-     - Train both the standard noise loss and `shortdf_relax_loss` together from scratch.
-     - Adjust the relative contributions using the config file to balance training:
-     - You can modify `noise_weight` and `relax_weight` to suit your dataset, model size, or desired training behavior.
+#### Loss Design & Strategy
+
+The ShortDF-specific loss is implemented in `./functions/losses.py` as `shortdf_relax_loss`. We recommend the following training strategies:
+
+1.  **Two-stage training (Recommended)**:
+
+      - **Phase 1**: Train using standard noise loss (or load a pretrained DDPM checkpoint) to stabilize the model.
+      - **Phase 2**: Fine-tune with `shortdf_relax_loss` to optimize for shortest-path residuals.
+      - *Benefit*: Reduces training complexity and ensures stable convergence.
+
+2.  **One-stage training (Optional)**:
+
+      - Train with both standard noise loss and `shortdf_relax_loss` from scratch.
+      - *Configuration*: Adjust `noise_weight` and `relax_weight` in the config file to balance the contributions based on your dataset and model size.
 
 
+## Sampling
 
-### Sampling
+### 1\. Download Pretrained Models
 
-#### 1. General sampling for FID evaluation
-```
+We provide pretrained models for the **CIFAR-10**, **CelebA**, and **LSUN-Church** datasets.
+
+  * **Download Link**: [Google Drive](https://drive.google.com/drive/folders/1YWOY0UKxjE3P1hvca0_-L_kRM17SdybR?usp=sharing)
+  * **Setup**: After downloading, please place the model file in the following directory structure: `logs/{DATASET}/ckpt.pth`
+
+### 2\. General Sampling (FID Evaluation)
+
+To generate samples and evaluate the Fréchet Inception Distance (FID):
+
+```bash
 python main.py --config {DATASET}.yml --exp {PROJECT_PATH} --doc {MODEL_NAME} --sample --fid --timesteps {STEPS} --eta {ETA} --ni
 ```
-- ETA controls variance scale (0: DDIM, 1: DDPM).
-- STEPS specifies the number of diffusion steps.
-- MODEL_NAME identifies the pretrained checkpoint path.
 
+  * `--eta`: Controls the variance scale ($\eta=0$ for DDIM, $\eta=1$ for DDPM).
+  * `--timesteps`: Specifies the number of diffusion steps ($T$).
+  * `--doc`: Identifies the folder name containing the checkpoint.
 
-#### 2. Sampling the sequence of images leading to a sample
-- Use the `--sequence` option.
+**Example (CIFAR-10):**
 
-Note: Some hard-coded lines are included for specific image generation cases; you may need to modify them for your own applications.
+```bash
+python main.py --config cifar10.yml --exp ./ --doc cifar10 --sample --fid --timesteps 2 --eta 0 --ni --skip_type quad
+python main.py --config cifar10.yml --exp ./ --doc cifar10 --sample --fid --timesteps 10 --eta 1 --ni --skip_type quad
+```
+
+**Example (LSUN-Church):**
+
+```bash
+python main.py --config church.yml --exp ./ --doc church --sample --fid --timesteps 20 --eta 1 --ni --skip_type uniform
+```
+
+-----
+
+> **Note:**
+>
+> When the number of steps increases, it poses a common risk of over-denoising, which is similar to other distillation schemes. In such cases, it is recommended to **decrease the $\eta$ parameter** to achieve better results.
+
 
 ---
 
-## 📖 References and Acknowledgements
-```
+## ⚙️ Requirements
+
+- Python ≥ 3.9
+- PyTorch ≥ 1.6
+- **Dependencies**: `torchvision`, `numpy`, `tqdm`
+
+---
+
+## 📖 Citation
+
+```bibtex
 @inproceedings{chen2025optimizing,
-title={Optimizing for the Shortest Path in Denoising Diffusion Model},
-author={Chen, Ping and Zhang, Xingpeng and Liu, Zhaoxiang and Hu, Huan and Liu, Xiang and Wang, Kai and Wang, Min and Qian, Yanlin and Lian, Shiguo},
-booktitle={Proceedings of the Computer Vision and Pattern Recognition Conference},
-pages={18021--18030},
-year={2025}
+  title={Optimizing for the Shortest Path in Denoising Diffusion Model},
+  author={Chen, Ping and Zhang, Xingpeng and Liu, Zhaoxiang and Hu, Huan and Liu, Xiang and Wang, Kai and Wang, Min and Qian, Yanlin and Lian, Shiguo},
+  booktitle={Proceedings of the Computer Vision and Pattern Recognition Conference},
+  pages={18021--18030},
+  year={2025}
 }
 ```
 
-This implementation is based on / inspired by:
-
-- [DDIM PyTorch repo](https://github.com/ermongroup/ddim) (code structure).
-- [PyTorch-DDPM repo](https://github.com/w86763777/pytorch-ddpm) (accelerated FID evaluation).
-
----
-
-
-
 ## 🔮 Future Directions
 
-We are also extending ShortDF to **text-to-image generation models**, exploring shortest-path optimization in generative multi-modal tasks. Stay tuned for the corresponding work!
-> **Note**: Currently, this is one feasible way to train ShortDF. We encourage the community to explore more efficient and faster training strategies to further reduce the number of diffusion steps while maintaining high-quality samples. We hope this idea inspires additional research and practical applications in diffusion-based generation.
-
-
+We are extending ShortDF to **text-to-image** and multi-modal tasks. We encourage the community to explore more efficient training strategies based on this shortest-path paradigm.

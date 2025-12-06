@@ -10,7 +10,7 @@ data:
     num_workers: 4
 
 model:
-    type: "ema_relax_method1_1015"
+    type: "shordf_relax_loss"
     in_channels: 3
     out_ch: 3
     ch: 128
