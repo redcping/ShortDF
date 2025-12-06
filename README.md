@@ -108,17 +108,32 @@ python main.py --config church.yml --exp ./ --doc church --sample --fid --timest
 
 ---
 
-## 📖 Citation
+## 📖 References and Acknowledgements
 
-```bibtex
-@inproceedings{chen2025optimizing,
-  title={Optimizing for the Shortest Path in Denoising Diffusion Model},
-  author={Chen, Ping and Zhang, Xingpeng and Liu, Zhaoxiang and Hu, Huan and Liu, Xiang and Wang, Kai and Wang, Min and Qian, Yanlin and Lian, Shiguo},
-  booktitle={Proceedings of the Computer Vision and Pattern Recognition Conference},
-  pages={18021--18030},
-  year={2025}
-}
 ```
+
+@inproceedings{chen2025optimizing,
+
+title={Optimizing for the Shortest Path in Denoising Diffusion Model},
+
+author={Chen, Ping and Zhang, Xingpeng and Liu, Zhaoxiang and Hu, Huan and Liu, Xiang and Wang, Kai and Wang, Min and Qian, Yanlin and Lian, Shiguo},
+
+booktitle={Proceedings of the Computer Vision and Pattern Recognition Conference},
+
+pages={18021--18030},
+
+year={2025}
+}
+
+```
+
+This implementation is based on / inspired by:
+- [DDIM PyTorch repo](https://github.com/ermongroup/ddim) (code structure).
+- [PyTorch-DDPM repo](https://github.com/w86763777/pytorch-ddpm) (accelerated FID evaluation).
+
+
+
+---
 
 ## 🔮 Future Directions
 
