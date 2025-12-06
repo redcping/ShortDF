@@ -295,7 +295,7 @@ class Diffusion(object):
         config = self.config
         img_id = 0
         print(f"starting from image {img_id}")
-        total_n_samples = 50000
+        total_n_samples = 100000
         print(total_n_samples)
         n_rounds = (total_n_samples - img_id) // config.sampling.batch_size
         image_list=[]
