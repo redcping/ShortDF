@@ -95,6 +95,8 @@ python main.py --config church.yml --exp ./ --doc church --sample --fid --timest
 
 > **Note:**
 >
+> FID scores are computed using the provided reference statistics in the `stats/` directory, and are intended for relative comparison under a unified evaluation setting.
+> 
 > When the number of steps increases, it poses a common risk of over-denoising, which is similar to other distillation schemes. In such cases, it is recommended to **decrease the $\eta$ parameter** to achieve better results.
 
 
